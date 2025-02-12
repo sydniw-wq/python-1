@@ -1,0 +1,9 @@
+In order for the function to work properly it must:
+
+	1. convert the input image to gray scale - remove all color information, leaving only shades ranging from gray to white
+	2. split the image into M x N tiles - need to create a matrix/grid to be able to process individual pieces of the image
+	3. correct M (number of rows) to match the image and font aspect ratio - want to ensure text fits propirtionally with the image
+	4. compute the average brightness for each image tile and then look up a suitable ASCII character for each - match each tile with an ASCII character depending on level 
+	of brightness, will allow us to generate different characters from the originally different colors
+	5. assemble rows of ASCII character strings and print them to a file to form the final image - once we have the tiles mapped to a character we must assemble the art! then output it to
+	file that will be able to show the full display
