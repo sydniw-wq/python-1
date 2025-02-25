@@ -74,4 +74,83 @@ def convertToAscii(fileName, columns, scale, moreLevels):
         #append empty string for each row
         asciiImg.append("")
 
+        #loop for columns
+        for i in rnage(columns):
+            #crop image to tile
+            x1 = int(i*tileWidth)
+            x2 = int ((i+1)*tileWidth)
+
+            #correct the last tile
+            if i == columns -1:
+                x2 = tileWidth
+            
+            #crop image to extract tile
+            img = image.crop((x1, y1, x2, y2))
+
+            #get average luminance - light intensity
+            avg = int(getAverageL(img))
+
+            #look up ascii char and assign to gray scale value
+            if moreLevels:
+                gsval = gscale1[int((avg*69)/255)]
+            else:
+                gsval = gscale2[int((avg*9)/255)]
+            
+            #append ascii char to string
+            asciiImg[j] += gsval
+
+    #reutrn string of ascii chars    
+    return asciiImg
+
+#main function
 # MUST OPEN A NEW TEXT FILE TO OUTPUT TO - DISPLAY FULL IMAGE
+def main():
+    #create a parser
+    descString = "Image to ASCII Art"
+    parser = argparse.ArgumentParser(description=descString)
+
+    #add expected arguments, defining a file destination
+    parser.add_argument('--file', dest='imgFile', required=True)
+    parser.add_argument('--scale', dest='scale', required=False)
+    parser.add_argument('--out', dest='outFile', required=False)
+    parser.add_argument('--cols', dest='cols', required=False)
+    parser.add_argument('--morelevels',dest='moreLevels',action='store_true')
+
+    #parse the arguments
+    args = parser.parse_args()
+    imgFile = args.imgFile
+
+    #define and set an output file for the image
+    outFile = 'out.txt'
+    if args.outFile:
+        outFile = args.outFile
+
+    #set scale default which suits a courier font
+    scale = 0.43
+    if args.scale:
+        scale = float(args.scale)
+    
+    #set number of columns
+    columns = 80
+    if args.cols:
+        columns = int(Args.columns)
+    
+    print("generating ASCII art")
+
+    #convert image to ascii text
+    asciiImg = convertToAscii(imgFile, columns, scale, args.moreLevels)
+
+    #open file
+    f = open(outFile, 'w')
+
+    #write to file
+    for row in asciiImg:
+        f.write(row + '\n')
+    
+    #cleanup
+    f.close()
+    print("ASCII art written %s" % outFile)
+
+#call main
+if __name__ == '__main__':
+    main()
