@@ -4,14 +4,14 @@
 import argparse, numpy,  math
 
 # PIL is an image processing library that allows us to open and manipulate our image
-from PIL import IMAGE
+from PIL import Image
 
 
 # MUST DEFINE GRAY SCALE LEVELS TO CONVERT COLOR IN IMAGE
 # 0 = black, 255 = white, every other number is a shade of gray
 # have to define the character representations for the grayscale - look up example character ramps
 # https://paulbourke.net/dataformats/asciiart/, 1 is to about 70 chars and the other is about 10 char
-gscale1 = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\|()1{}[]?-_+~<>i!lI;:,\"^`'. "
+gscale1 = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/|()1{}[]?-_+~<>i!lI;:,\"^`'. "
 gscale2 = " .:-=+*#%@"
 
 
@@ -38,20 +38,20 @@ def convertToAscii(fileName, columns, scale, moreLevels):
     global gscale1, gscale2
 
     #open image and convert to grayscale
-    image = IMAGE.open(fileName).convert('L')
+    image = Image.open(fileName).convert('L')
 
     #store dimensions
     width, height = image.size[0], image.size[1]
-    print("input image dimensions: " + width + " by "+ height)
+    print(f"input image dimensions: {width} by {height}")
 
     #compute dimensions of individual tiles
     tileWidth = width/columns
-    tileHeight = height/scale
-    print("tile dimensions: "+ tileWidth+ " by "+tileHeight)
+    tileHeight = tileWidth/scale
+    print(f"tile dimensions: {tileWidth} by {tileHeight}")
 
     #compute number of rows
     rows = int(height/tileHeight)
-    print("columns: "+columns+", rows: "+rows)
+    print(f"columns: {columns}, rows: {rows}")
 
     #verify image is not too small for specified columns
     if columns > width or rows > height:
@@ -65,7 +65,7 @@ def convertToAscii(fileName, columns, scale, moreLevels):
     for i in range(rows):
         #y1 = starting y-cord of current row, y2=ending ending y-cord of current row
         y1 = int(i*tileHeight)
-        y2 = int((j+1)*tileHeight)
+        y2 = int((i+1)*tileHeight)
 
         #ensure last row extends to the full height of the grid
         if i == rows-1:
@@ -75,20 +75,20 @@ def convertToAscii(fileName, columns, scale, moreLevels):
         asciiImg.append("")
 
         #loop for columns
-        for i in rnage(columns):
+        for j in range(columns):
             #crop image to tile
-            x1 = int(i*tileWidth)
-            x2 = int ((i+1)*tileWidth)
+            x1 = int(j*tileWidth)
+            x2 = int ((j+1)*tileWidth)
 
             #correct the last tile
-            if i == columns -1:
-                x2 = tileWidth
+            if j == columns -1:
+                x2 = width
             
             #crop image to extract tile
             img = image.crop((x1, y1, x2, y2))
 
             #get average luminance - light intensity
-            avg = int(getAverageL(img))
+            avg = int(averageL(img))
 
             #look up ascii char and assign to gray scale value
             if moreLevels:
@@ -97,7 +97,7 @@ def convertToAscii(fileName, columns, scale, moreLevels):
                 gsval = gscale2[int((avg*9)/255)]
             
             #append ascii char to string
-            asciiImg[j] += gsval
+            asciiImg[i] += gsval
 
     #reutrn string of ascii chars    
     return asciiImg
@@ -133,7 +133,7 @@ def main():
     #set number of columns
     columns = 80
     if args.cols:
-        columns = int(Args.columns)
+        columns = int(args.cols)
     
     print("generating ASCII art")
 
